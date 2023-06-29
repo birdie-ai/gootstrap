@@ -33,13 +33,13 @@ func main() {
 }
 
 func generate(name, group string) {
-	templateDir := "templates/simple"
-
 	type serviceInfo struct {
 		Name         string
 		Group        string
 		ConfigPrefix string
 	}
+
+	const templateDir = "templates/basic"
 
 	info := serviceInfo{
 		Name:         name,

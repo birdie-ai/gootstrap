@@ -4,9 +4,7 @@ FROM golang:${GO_VERSION}-bullseye
 
 # Install necessary packages
 RUN apt-get update && \
-    apt-get install -y git curl npm
-
-RUN npm install -g @apidevtools/swagger-cli@4.0.4
+    apt-get install -y git
 
 ARG GOLANGCI_LINT_VERSION
 

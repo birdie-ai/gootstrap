@@ -3,7 +3,6 @@ SHELL = /bin/bash
 # TOOLS VERSIONS
 GO_VERSION=1.20.5
 GOLANGCI_LINT_VERSION=v1.51.2
-SEMGREP_VERSION=1.23.0
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
@@ -47,6 +46,11 @@ run: service
 .PHONY: mod
 mod:
 	go mod tidy
+
+## lint the whole project
+.PHONY: lint
+lint:
+	golangci-lint run ./...
 
 ## generates coverage report
 .PHONY: test/coverage
@@ -111,13 +115,6 @@ dev/image:
 dev: devrunopts=-ti
 dev: dev/image
 	$(devrun)
-
-## lint the whole project
-.PHONY: dev/lint
-dev/lint: dev/image
-	$(devrun) swagger-cli validate docs/api.yml
-	$(devrun) golangci-lint run ./...
-	docker run --rm -v "${PWD}:/src" returntocorp/semgrep:$(SEMGREP_VERSION) semgrep --config auto
 
 ## run a make target inside the dev container.
 dev/%: dev/image

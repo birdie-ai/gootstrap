@@ -13,13 +13,19 @@ gootstrap -group testgroup -name testservice
 echo "generated files on: ${tmpdir}"
 tree
 
-echo "checking test and fmt"
+echo "checking basic cmds"
 make test
 make test/coverage
 make fmt
+make lint
+make mod
 
-echo "checking dev image and lint"
+echo "checking running commands on dev container"
+make dev/test
+make dev/test/coverage
+make dev/fmt
 make dev/lint
+make dev/mod
 
 echo "checking image build"
 make image
