@@ -1,0 +1,19 @@
+name: CI
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Linting
+        run: make dev/lint
+
+      - name: Testing
+        run: make dev/test
+
+      - name: Container Image
+        run: make image

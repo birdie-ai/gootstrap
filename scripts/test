@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+tmpdir="$(mktemp -d)"
+go build .
+mv ./gootstrap "${tmpdir}"
+cd "${tmpdir}" || exit 1
+
+git init
+git config user.email "test@example.com"
+git config user.name "Test"
+
+./gootstrap -group testgroup -name testservice
+
+echo "generated files on: ${tmpdir}"
+tree
+
+git add .
+git commit -m "test"
+
+echo "checking basic cmds"
+make test
+make test/coverage
+make fmt
+make lint
+make mod
+make service
+
+echo "checking running commands on dev container"
+make dev/test
+make dev/test/coverage
+make dev/fmt
+make dev/lint
+make dev/mod
+make dev/service
+
+echo "checking image build"
+make image
