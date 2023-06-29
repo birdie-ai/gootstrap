@@ -8,10 +8,15 @@ go install .
 tmpdir="$(mktemp -d)"
 cd "${tmpdir}" || exit 1
 
+git init
+
 gootstrap -group testgroup -name testservice
 
 echo "generated files on: ${tmpdir}"
 tree
+
+git add .
+git commit -m "test"
 
 echo "checking basic cmds"
 make test

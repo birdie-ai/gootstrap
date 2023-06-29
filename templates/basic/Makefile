@@ -20,7 +20,7 @@ devrun=docker run $(devrunopts) --rm \
 
 covreport ?= coverage.txt
 
-all: dev/lint test image
+all: lint test image
 
 ## run isolated tests
 .PHONY: test
