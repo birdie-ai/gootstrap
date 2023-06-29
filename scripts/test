@@ -3,14 +3,14 @@
 set -o nounset
 set -o errexit
 
-go install .
-
 tmpdir="$(mktemp -d)"
+go build .
+mv ./gootstrap "${tmpdir}"
 cd "${tmpdir}" || exit 1
 
 git init
 
-gootstrap -group testgroup -name testservice
+./gootstrap -group testgroup -name testservice
 
 echo "generated files on: ${tmpdir}"
 tree
