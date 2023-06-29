@@ -15,7 +15,6 @@ git config user.name "Test"
 ./gootstrap -group testgroup -name testservice
 
 echo "generated files on: ${tmpdir}"
-tree
 
 git add .
 git commit -m "test"
