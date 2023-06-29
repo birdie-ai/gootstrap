@@ -1,0 +1,25 @@
+#!/bin/bash
+
+set -o nounset
+set -o errexit
+
+go install .
+
+tmpdir="$(mktemp -d)"
+cd "${tmpdir}" || exit 1
+
+gootstrap -group testgroup -name testservice
+
+echo "generated files on: ${tmpdir}"
+tree
+
+echo "checking test and fmt"
+make test
+make test/coverage
+make fmt
+
+echo "checking dev image and lint"
+make dev/lint
+
+echo "checking image build"
+make image
