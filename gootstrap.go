@@ -12,7 +12,7 @@ import (
 	"text/template"
 )
 
-//go:embed templates
+//go:embed templates/basic/*
 var templates embed.FS
 
 func main() {
@@ -48,7 +48,14 @@ func generate(name, group string) {
 	}
 
 	applyTemplate := func(templ string) string {
-		t := template.Must(template.New("templ").Parse(templ))
+		// Why: some files, like Github CI files, have notation identical
+		// To Go templates. So for now we just try to apply the template and if it
+		// fails we assume it should be used as is (not the safest option, but no more time to deal
+		// with this right now).
+		t, err := template.New("templ").Parse(templ)
+		if err != nil {
+			return templ
+		}
 		result := bytes.Buffer{}
 		assert(t.Execute(&result, info))
 		return result.String()
