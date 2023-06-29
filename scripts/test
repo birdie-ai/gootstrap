@@ -9,6 +9,8 @@ mv ./gootstrap "${tmpdir}"
 cd "${tmpdir}" || exit 1
 
 git init
+git config user.email "test@example.com"
+git config user.name "Test"
 
 ./gootstrap -group testgroup -name testservice
 
