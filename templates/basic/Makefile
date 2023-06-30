@@ -50,7 +50,7 @@ mod:
 ## lint the whole project
 .PHONY: lint
 lint:
-	golangci-lint run ./...
+	go run github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run ./...
 
 ## generates coverage report
 .PHONY: test/coverage
