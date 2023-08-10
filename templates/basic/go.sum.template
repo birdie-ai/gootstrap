@@ -1,4 +1,4 @@
-github.com/birdie-ai/golibs/slog v0.0.2 h1:6ZGHzIpEDt2nMHDh8k4JGMjXDFJ6tpmCh+nj6PsNXrE=
-github.com/birdie-ai/golibs/slog v0.0.2/go.mod h1:RpVD0O6KZ4dyptwhfgz0utR4QrwbiroPay18M3kCWAs=
-golang.org/x/exp v0.0.0-20230321023759-10a507213a29 h1:ooxPy7fPvB4kwsA2h+iBNHkAbp/4JxTSwCmvdjEYmug=
-golang.org/x/exp v0.0.0-20230321023759-10a507213a29/go.mod h1:CxIveKay+FTh1D0yPZemJVgC/95VzuuOLq5Qi4xnoYc=
+github.com/birdie-ai/golibs/slog v0.0.5 h1:N3fq0a7t85CHyufMrdTc2wrNUebjqxVU+90eUMaSIfE=
+github.com/birdie-ai/golibs/slog v0.0.5/go.mod h1:3dc4562RKBL6q7MaAHQuMo3UPNDlwfZP+dXcSSx3TtM=
+golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df h1:UA2aFVmmsIlefxMk29Dp2juaUSth8Pyn3Tq5Y5mJGME=
+golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df/go.mod h1:FXUEEKJgO7OQYeo8N01OfiKP8RXMtf6e8aTskBGqWdc=
