@@ -1,3 +1,3 @@
 module github.com/birdie-ai/gootstrap
 
-go 1.20
+go 1.21
