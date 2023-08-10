@@ -1,8 +1,8 @@
 SHELL = /bin/bash
 
 # TOOLS VERSIONS
-GO_VERSION=1.20.5
-GOLANGCI_LINT_VERSION=v1.51.2
+GO_VERSION=1.21.0
+GOLANGCI_LINT_VERSION=v1.54.0
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
