@@ -52,6 +52,11 @@ mod:
 lint:
 	go run github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run ./...
 
+## Run vulncheck
+.PHONY: vulncheck
+vulncheck:
+	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+
 ## generates coverage report
 .PHONY: test/coverage
 test/coverage:
