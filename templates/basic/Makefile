@@ -1,7 +1,7 @@
 SHELL = /bin/bash
 
 # TOOLS VERSIONS
-GO_VERSION=1.21.0
+GO_VERSION=1.21.4
 GOLANGCI_LINT_VERSION=v1.54.0
 
 # configuration/aliases

@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . /app
 RUN make service
 
-FROM docker.io/alpine:3.17.2
+FROM docker.io/alpine:3.17.5
 RUN apk --no-cache add ca-certificates
 COPY --from=builder /app/cmd/{{.Name}}/{{.Name}} /usr/bin/{{.Name}}
 CMD ["{{.Name}}"]
