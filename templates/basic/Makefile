@@ -3,7 +3,7 @@ SHELL = /bin/bash
 # TOOLS VERSIONS
 GO_VERSION=1.21.5
 GOLANGCI_LINT_VERSION=v1.54.0
-ALPINE_VERSION=1.19
+ALPINE_VERSION=3.19
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
