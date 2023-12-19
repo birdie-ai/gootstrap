@@ -78,7 +78,7 @@ port-forward:
 image:
 	docker build . \
 		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GO_VERSION=$(ALPINE_VERSION) \
+		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
 		-t $(image)
 
 ## Build a production ready container image and run it locally for testing.
