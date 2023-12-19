@@ -3,6 +3,7 @@ SHELL = /bin/bash
 # TOOLS VERSIONS
 GO_VERSION=1.21.5
 GOLANGCI_LINT_VERSION=v1.54.0
+ALPINE_VERSION=1.19
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
@@ -77,6 +78,7 @@ port-forward:
 image:
 	docker build . \
 		--build-arg GO_VERSION=$(GO_VERSION) \
+		--build-arg GO_VERSION=$(ALPINE_VERSION) \
 		-t $(image)
 
 ## Build a production ready container image and run it locally for testing.
