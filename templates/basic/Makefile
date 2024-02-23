@@ -7,9 +7,9 @@ ALPINE_VERSION=3.19
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
-base_image=us-central1-docker.pkg.dev/birdie-org/birdie/{{.Group}}/{{.Name}}
+base_image=us-central1-docker.pkg.dev/birdie-org/birdie/[[.Group]]/[[.Name]]
 image=$(base_image):$(version)
-devimage={{.Name}}-dev
+devimage=[[.Name]]-dev
 # To avoid downloading deps everytime it runs on containers
 gopkg=$(devimage)-gopkg
 gocache=$(devimage)-gocache
@@ -36,12 +36,12 @@ fmt:
 ## builds the service
 .PHONY: service
 service:
-	go build -o ./cmd/{{.Name}}/{{.Name}} ./cmd/{{.Name}}
+	go build -o ./cmd/[[.Name]]/[[.Name]] ./cmd/[[.Name]]
 
 ## runs the service locally
 .PHONY: run
 run: service
-	./cmd/{{.Name}}/{{.Name}}
+	./cmd/[[.Name]]/[[.Name]]
 
 ## tidy up go modules
 .PHONY: mod
@@ -71,7 +71,7 @@ test/coverage/show: test/coverage
 ## Configure a proxy to the service running on GKE (environment depends on which cluster is configured on kubectl).
 .PHONY: port-forward
 port-forward:
-	kubectl port-forward -n enrichment service/{{.Name}} 8080:80
+	kubectl port-forward -n enrichment service/[[.Name]] 8080:80
 
 ## Build the service image
 .PHONY: image

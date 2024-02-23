@@ -48,14 +48,9 @@ func generate(name, group string) {
 	}
 
 	applyTemplate := func(templ string) string {
-		// Why: some files, like Github CI files, have notation identical
-		// To Go templates. So for now we just try to apply the template and if it
-		// fails we assume it should be used as is (not the safest option, but no more time to deal
-		// with this right now).
-		t, err := template.New("templ").Parse(templ)
-		if err != nil {
-			return templ
-		}
+		// we use [[ and ]] because {{ and }} are also used by GitHub workflow definitions
+		t, err := template.New("templ").Delims("[[", "]]").Parse(templ)
+		assert(err)
 		result := bytes.Buffer{}
 		assert(t.Execute(&result, info))
 		return result.String()

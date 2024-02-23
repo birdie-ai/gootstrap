@@ -9,5 +9,5 @@ RUN make service
 
 FROM docker.io/alpine:${ALPINE_VERSION}
 RUN apk --no-cache add ca-certificates
-COPY --from=builder /app/cmd/{{.Name}}/{{.Name}} /usr/bin/{{.Name}}
-CMD ["{{.Name}}"]
+COPY --from=builder /app/cmd/[[.Name]]/[[.Name]] /usr/bin/[[.Name]]
+CMD ["[[.Name]]"]

@@ -1,7 +1,7 @@
-// {{.Name}} runs the service.
+// [[.Name]] runs the service.
 // For details on how to configure it just run:
 //
-//	{{.Name}} --help
+//	[[.Name]] --help
 package main
 
 import (
@@ -11,13 +11,13 @@ import (
 )
 
 func main() {
-	logcfg, err := slog.LoadConfig("{{.ConfigPrefix}}")
+	logcfg, err := slog.LoadConfig("[[.ConfigPrefix]]")
 	abortonerr(err)
 
 	err = slog.Configure(logcfg)
 	abortonerr(err)
 
-	slog.Info("TODO: implement {{.Name}}")
+	slog.Info("TODO: implement [[.Name]]")
 }
 
 func abortonerr(err error) {

@@ -1,4 +1,4 @@
-module github.com/birdie-ai/{{.Name}}
+module github.com/birdie-ai/[[.Name]]
 
 go 1.21
 
