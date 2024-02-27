@@ -8,19 +8,22 @@ import (
 	"io/fs"
 	"log"
 	"os"
+	"path"
 	"strings"
 	"text/template"
 )
 
-//go:embed templates/basic/*
+//go:embed templates/*
 var templates embed.FS
 
 func main() {
 	name := ""
 	group := ""
+	templateName := ""
 
 	flag.StringVar(&group, "group", "", "group of the service, like 'enrichment' or 'synthplatform', etc")
 	flag.StringVar(&name, "name", "", "name of the service")
+	flag.StringVar(&templateName, "template", "basic", "name of the template")
 	flag.Parse()
 
 	if name == "" || group == "" {
@@ -29,17 +32,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	generate(name, group)
+	generate(name, group, templateName)
 }
 
-func generate(name, group string) {
+func generate(name, group, templateName string) {
 	type serviceInfo struct {
 		Name         string
 		Group        string
 		ConfigPrefix string
 	}
 
-	const templateDir = "templates/basic"
+	templateDir := path.Join("templates", templateName)
 
 	info := serviceInfo{
 		Name:         name,
