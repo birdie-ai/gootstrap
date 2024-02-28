@@ -13,8 +13,8 @@ import (
 	"text/template"
 )
 
-//go:embed templates/*
-var templates embed.FS
+//go:embed templates/basic/*
+var basicTemplate embed.FS
 
 func main() {
 	name := ""
@@ -32,17 +32,24 @@ func main() {
 		os.Exit(1)
 	}
 
-	generate(name, group, templateName)
+	templates := map[string]embed.FS{
+		"basic": basicTemplate,
+	}
+	templateFS, ok := templates[templateName]
+	if !ok {
+		fmt.Println("unknown template:", templateName)
+		os.Exit(1)
+	}
+
+	generate(name, group, templateFS, path.Join("templates", templateName))
 }
 
-func generate(name, group, templateName string) {
+func generate(name, group string, templateFS fs.FS, templateDir string) {
 	type serviceInfo struct {
 		Name         string
 		Group        string
 		ConfigPrefix string
 	}
-
-	templateDir := path.Join("templates", templateName)
 
 	info := serviceInfo{
 		Name:         name,
@@ -64,7 +71,7 @@ func generate(name, group, templateName string) {
 		return result.String()
 	}
 
-	err := fs.WalkDir(templates, templateDir, func(path string, d fs.DirEntry, err error) error {
+	err := fs.WalkDir(templateFS, templateDir, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return nil
 		}
@@ -83,7 +90,7 @@ func generate(name, group, templateName string) {
 
 		log.Printf("generating file %q", targetPath)
 
-		data, err := fs.ReadFile(templates, path)
+		data, err := fs.ReadFile(templateFS, path)
 		assert(err)
 
 		generated := applyTemplate(string(data))
