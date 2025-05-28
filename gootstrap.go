@@ -60,6 +60,7 @@ func generate(name, group string, templateFS fs.FS, templateDir string) {
 	// Github workflows use ${{name}} for accessing variables/secrets and that fucks up our template generation here.
 	// So we create functions to the github used fields like "vars" and just echo the desired original template.
 	// Yes this may go wrong if we have some name that clashes with these names, that is a problem for future me !!!
+	// Maybe it would be better to define our own "echo" function and them on the templates ?... wondering, this way may be too automagical.
 	funcs := template.FuncMap{
 		"vars": func() map[string]string {
 			return map[string]string{
