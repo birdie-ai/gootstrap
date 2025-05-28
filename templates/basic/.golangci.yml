@@ -1,11 +1,33 @@
+version: "2"
 linters:
   enable:
-    - revive
+    - bodyclose
     - misspell
+    - musttag
+    - revive
+    - sqlclosecheck
+    - unparam
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - bodyclose
+        path: (.+)_test\.go
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
     - gofmt
-issues:
-  # So we can detect exported/undocumented symbols
-  # https://github.com/golangci/golangci-lint/issues/2114
-  exclude:
-    - EXC0012
-  exclude-use-default: false
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
