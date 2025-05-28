@@ -21,7 +21,7 @@ func main() {
 	group := ""
 	templateName := ""
 
-	flag.StringVar(&group, "group", "", "group of the service, like 'enrichment' or 'synthplatform', etc")
+	flag.StringVar(&group, "group", "", "group of the service, like 'enrichment' or 'platform', etc")
 	flag.StringVar(&name, "name", "", "name of the service")
 	flag.StringVar(&templateName, "template", "basic", "name of the template")
 	flag.Parse()
