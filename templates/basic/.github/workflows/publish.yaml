@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     permissions:
-      contents: read
+      contents: write
       id-token: write
 
     runs-on: ubuntu-22.04
@@ -16,23 +16,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
         with:
           token_format: access_token
-          workload_identity_provider: ${{"{{"}} vars.GOOGLE_WORKLOAD_IDENTITY_PROVIDER {{"}}"}}
-          service_account: ${{"{{"}} vars.GOOGLE_SERVICE_ACCOUNT {{"}}"}}
-          access_token_lifetime: 300s
+          workload_identity_provider: ${{ vars.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ vars.GOOGLE_SERVICE_ACCOUNT }}
+          access_token_lifetime: 600s
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+        with:
+          version: "504.0.1"
+          install_components: 'kubectl,gke-gcloud-auth-plugin'
 
       - name: Login to Artifact Registry
         uses: docker/login-action@v3
         with:
           registry: us-central1-docker.pkg.dev/birdie-org/birdie
           username: oauth2accesstoken
-          password: ${{"{{"}} steps.auth.outputs.access_token {{"}}"}}
+          password: ${{ steps.auth.outputs.access_token }}
 
-      - name: Publish image
+      - name: Publish service image
         run: |
           make image/publish version=latest
           make image/publish
+
+      - name: Deploy in staging
+        run: make deploy/staging

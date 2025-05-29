@@ -21,7 +21,7 @@ func main() {
 	group := ""
 	templateName := ""
 
-	flag.StringVar(&group, "group", "", "group of the service, like 'enrichment' or 'synthplatform', etc")
+	flag.StringVar(&group, "group", "", "group of the service, like 'enrichment' or 'platform', etc")
 	flag.StringVar(&name, "name", "", "name of the service")
 	flag.StringVar(&templateName, "template", "basic", "name of the template")
 	flag.Parse()
@@ -56,9 +56,31 @@ func generate(name, group string, templateFS fs.FS, templateDir string) {
 		Group:        group,
 		ConfigPrefix: strings.ToUpper(name),
 	}
+	// Big brain time !!!
+	// Github workflows use ${{name}} for accessing variables/secrets and that fucks up our template generation here.
+	// So we create functions to the github used fields like "vars" and just echo the desired original template.
+	// Yes this may go wrong if we have some name that clashes with these names, that is a problem for future me !!!
+	// Maybe it would be better to define our own "echo" function and them on the templates ?... wondering, this way may be too automagical.
+	funcs := template.FuncMap{
+		"vars": func() map[string]string {
+			return map[string]string{
+				"GOOGLE_WORKLOAD_IDENTITY_PROVIDER": "{{ GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}",
+				"GOOGLE_SERVICE_ACCOUNT":            "{{ GOOGLE_SERVICE_ACCOUNT }}",
+			}
+		},
+		"steps": func() map[string]any {
+			return map[string]any{
+				"auth": map[string]any{
+					"outputs": map[string]any{
+						"access_token": "{{ steps.auth.outputs.access_token }}",
+					},
+				},
+			}
+		},
+	}
 
 	applyTemplate := func(templ string) string {
-		t, err := template.New("templ").Parse(templ)
+		t, err := template.New("templ").Funcs(funcs).Parse(templ)
 		assert(err)
 		result := bytes.Buffer{}
 		assert(t.Execute(&result, info))

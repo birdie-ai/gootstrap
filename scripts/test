@@ -20,20 +20,14 @@ git add .
 git commit -m "test"
 
 echo "checking basic cmds"
+make mod
+make vulncheck
+make deadcode
 make test
 make test/coverage
 make fmt
 make lint
-make mod
-make service
-
-echo "checking running commands on dev container"
-make dev/test
-make dev/test/coverage
-make dev/fmt
-make dev/lint
-make dev/mod
-make dev/service
+make lint/mod
 
 echo "checking image build"
 make image

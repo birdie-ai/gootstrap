@@ -1,24 +1,14 @@
 SHELL = /bin/bash
 
 # TOOLS VERSIONS
-GO_VERSION=1.21.5
-GOLANGCI_LINT_VERSION=v1.54.0
-ALPINE_VERSION=3.19
+ALPINE_VERSION=3.20
+VULNCHECK_VERSION=v1.1.3
+DEADCODE_VERSION=v0.24.0
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
 base_image=us-central1-docker.pkg.dev/birdie-org/birdie/{{.Group}}/{{.Name}}
 image=$(base_image):$(version)
-devimage={{.Name}}-dev
-# To avoid downloading deps everytime it runs on containers
-gopkg=$(devimage)-gopkg
-gocache=$(devimage)-gocache
-devrun=docker run $(devrunopts) --rm \
-	-v `pwd`:/app \
-	-v $(gopkg):/go/pkg \
-	-v $(gocache):/root/.cache/go-build \
-	$(devimage)
-
 covreport ?= coverage.txt
 
 all: lint test image
@@ -26,37 +16,32 @@ all: lint test image
 ## run isolated tests
 .PHONY: test
 test:
-	go test ./... -timeout 10s -race -shuffle on
+	go test ./... -timeout 30s -short -race -shuffle on
 
 ## Format go code
 .PHONY: fmt
 fmt:
-	goimports -w .
+	go run golang.org/x/tools/cmd/goimports@v0.1.7 -w .
 
-## builds the service
-.PHONY: service
-service:
-	go build -o ./cmd/{{.Name}}/{{.Name}} ./cmd/{{.Name}}
+## Install commands
+.PHONY: install/%
+install/%:
+	go install ./cmd/${*}
+
+## Builds commands
+.PHONY: build/%
+build/%:
+	go build -o ./cmd/${*}/${*} ./cmd/${*}
 
 ## runs the service locally
 .PHONY: run
-run: service
+run: build/{{.Name}}
 	./cmd/{{.Name}}/{{.Name}}
 
 ## tidy up go modules
 .PHONY: mod
 mod:
 	go mod tidy
-
-## lint the whole project
-.PHONY: lint
-lint:
-	go run github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLANGCI_LINT_VERSION) run ./...
-
-## Run vulncheck
-.PHONY: vulncheck
-vulncheck:
-	go run golang.org/x/vuln/cmd/govulncheck@latest ./...
 
 ## generates coverage report
 .PHONY: test/coverage
@@ -71,61 +56,62 @@ test/coverage/show: test/coverage
 ## Configure a proxy to the service running on GKE (environment depends on which cluster is configured on kubectl).
 .PHONY: port-forward
 port-forward:
-	kubectl port-forward -n enrichment service/{{.Name}} 8080:80
+	kubectl port-forward -n {{.Group}} service/{{.Name}} 8080:80
+
+## Build a binary suitable to be copied to a container image
+.PHONY: image-bin/%
+image-bin/%:
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./cmd/${*}/${*} ./cmd/${*}
 
 ## Build the service image
 .PHONY: image
-image:
-	docker build . \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg ALPINE_VERSION=$(ALPINE_VERSION) \
-		-t $(image)
-
-## Build a production ready container image and run it locally for testing.
-.PHONY: image/run
-image/run: image
-	docker run --rm -ti \
-		-v $(gopkg):/go/pkg \
-		$(image)
+image: image-bin/{{.Name}}
+	docker build .  --build-arg ALPINE_VERSION=$(ALPINE_VERSION) -t $(image)
 
 ## Publish the service image
 .PHONY: image/publish
 image/publish: image
 	docker push $(image)
 
-## Releases to production
-.PHONY: release
-release: release_version=release-$(shell date '+%Y-%m-%d')-$(version)
-release: release_image=$(base_image):$(release_version)
-release:
-	@echo "releasing from image: $(image)"
-	@echo "release image:        $(release_image)"
-	@echo "git tag:              $(release_version)"
-	docker pull $(image)
-	docker image tag $(image) $(release_image)
-	docker push $(release_image)
-	git tag -a $(release_version) -m "release to production: $(release_image)"
-	git push origin $(release_version)
+# deploy the current (local git) revision to specified GKE cluster
+.PHONY: deploy
+deploy: guard-project guard-cluster guard-zone guard-image
+	gcloud config set project $(project)
+	gcloud container clusters get-credentials $(cluster) --zone $(zone) --project $(project)
+	kubectl set image -n {{.Group}} deployment/{{.Name}} {{.Name}}=$(image)
+	kubectl set image -n {{.Group}} deployment/{{.Name}}-spot {{.Name}}-spot=$(image)
 
-## Create the dev container image
-.PHONY: dev/image
-dev/image:
-	docker build \
-		--build-arg GO_VERSION=$(GO_VERSION) \
-		--build-arg GOLANGCI_LINT_VERSION=$(GOLANGCI_LINT_VERSION) \
-		-t $(devimage) \
-		-f Dockerfile.dev \
-		.
+# deploy in staging
+.PHONY: deploy/staging
+deploy/staging: project=k8s-staging-359211
+deploy/staging: cluster=k8s-staging
+deploy/staging: zone=us-central1-c
+deploy/staging: deploy
 
-## Create a shell inside the dev container
-.PHONY: dev
-dev: devrunopts=-ti
-dev: dev/image
-	$(devrun)
+# deploy in production
+.PHONY: deploy/production
+deploy/production: project=k8s-production-360315
+deploy/production: cluster=k8s-cluster-production
+deploy/production: zone=us-central1
+deploy/production: deploy
 
-## run a make target inside the dev container.
-dev/%: dev/image
-	$(devrun) make ${*}
+## deadcode detects dead code on the project
+.PHONY: deadcode
+deadcode:
+	go run golang.org/x/tools/cmd/deadcode@$(DEADCODE_VERSION) -test ./...
+
+.PHONY: lint
+lint:
+	golangci-lint run --timeout 120s ./...
+
+.PHONY: lint/mod
+lint/mod:
+	go mod tidy -diff
+
+## checks code for vulnerabilities
+.PHONY: vulncheck
+vulncheck:
+	go run golang.org/x/vuln/cmd/govulncheck@$(VULNCHECK_VERSION) ./...
 
 ## Display help for all targets
 .PHONY: help
@@ -139,3 +125,9 @@ help:
 			} \
 	} \
 	{ lastLine = $$0 }' $(MAKEFILE_LIST)
+
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "parameter '$*' not set"; \
+		exit 1; \
+	fi

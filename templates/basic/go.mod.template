@@ -1,7 +1,5 @@
 module github.com/birdie-ai/{{.Name}}
 
-go 1.21
+go 1.24
 
-require github.com/birdie-ai/golibs v0.0.9
-
-require golang.org/x/exp v0.0.0-20230626212559-97b1e661b5df // indirect
+require github.com/birdie-ai/golibs v0.0.42
