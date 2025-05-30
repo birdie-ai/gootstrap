@@ -23,6 +23,12 @@ Inside the root of the cloned repository run:
 gootstrap -group <service_group> -name <service_name>
 ```
 
+Then run (we don't provide a go.sum file, so you need to generate one):
+
+```
+make mod
+```
+
 For more details:
 
 ```bash

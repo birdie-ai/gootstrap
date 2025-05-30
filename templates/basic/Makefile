@@ -79,7 +79,6 @@ deploy: guard-project guard-cluster guard-zone guard-image
 	gcloud config set project $(project)
 	gcloud container clusters get-credentials $(cluster) --zone $(zone) --project $(project)
 	kubectl set image -n {{.Group}} deployment/{{.Name}} {{.Name}}=$(image)
-	kubectl set image -n {{.Group}} deployment/{{.Name}}-spot {{.Name}}-spot=$(image)
 
 # deploy in staging
 .PHONY: deploy/staging
