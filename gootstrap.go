@@ -64,8 +64,8 @@ func generate(name, group string, templateFS fs.FS, templateDir string) {
 	funcs := template.FuncMap{
 		"vars": func() map[string]string {
 			return map[string]string{
-				"GOOGLE_WORKLOAD_IDENTITY_PROVIDER": "{{ GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}",
-				"GOOGLE_SERVICE_ACCOUNT":            "{{ GOOGLE_SERVICE_ACCOUNT }}",
+				"GOOGLE_WORKLOAD_IDENTITY_PROVIDER": "{{ vars.GOOGLE_WORKLOAD_IDENTITY_PROVIDER }}",
+				"GOOGLE_SERVICE_ACCOUNT":            "{{ vars.GOOGLE_SERVICE_ACCOUNT }}",
 			}
 		},
 		"steps": func() map[string]any {
