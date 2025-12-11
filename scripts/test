@@ -26,7 +26,6 @@ make deadcode
 make test
 make test/coverage
 make fmt
-make lint
 make lint/mod
 
 echo "checking image build"

@@ -15,7 +15,7 @@ all: lint test image
 ## Format go code
 .PHONY: fmt
 fmt:
-	go run golang.org/x/tools/cmd/goimports@v0.1.7 -w .
+	go tool golang.org/x/tools/cmd/goimports -w .
 
 ## Install commands
 .PHONY: install/%
