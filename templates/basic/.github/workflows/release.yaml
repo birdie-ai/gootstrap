@@ -31,7 +31,7 @@ jobs:
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
         with:
-          version: "504.0.1"
+          version: "549.0.0"
           install_components: 'kubectl,gke-gcloud-auth-plugin'
 
       - name: Login to Artifact Registry

@@ -2,8 +2,6 @@ SHELL = /bin/bash
 
 # TOOLS VERSIONS
 ALPINE_VERSION=3.20
-VULNCHECK_VERSION=v1.1.3
-DEADCODE_VERSION=v0.24.0
 
 # configuration/aliases
 version=$(shell git rev-parse --short HEAD)
@@ -13,10 +11,6 @@ covreport ?= coverage.txt
 
 all: lint test image
 
-## run isolated tests
-.PHONY: test
-test:
-	go test ./... -timeout 30s -short -race -shuffle on
 
 ## Format go code
 .PHONY: fmt
@@ -43,6 +37,11 @@ run: build/{{.Name}}
 mod:
 	go mod tidy
 
+## run tests
+.PHONY: test
+test:
+	go test ./... -timeout 30s -short -race -shuffle on
+
 ## generates coverage report
 .PHONY: test/coverage
 test/coverage:
@@ -52,11 +51,6 @@ test/coverage:
 .PHONY: test/coverage/show
 test/coverage/show: test/coverage
 	go tool cover -html=$(covreport)
-
-## Configure a proxy to the service running on GKE (environment depends on which cluster is configured on kubectl).
-.PHONY: port-forward
-port-forward:
-	kubectl port-forward -n {{.Group}} service/{{.Name}} 8080:80
 
 ## Build a binary suitable to be copied to a container image
 .PHONY: image-bin/%
@@ -97,11 +91,7 @@ deploy/production: deploy
 ## deadcode detects dead code on the project
 .PHONY: deadcode
 deadcode:
-	go run golang.org/x/tools/cmd/deadcode@$(DEADCODE_VERSION) -test ./...
-
-.PHONY: lint
-lint:
-	golangci-lint run --timeout 120s ./...
+	go tool golang.org/x/tools/cmd/deadcode -test ./...
 
 .PHONY: lint/mod
 lint/mod:
@@ -110,7 +100,7 @@ lint/mod:
 ## checks code for vulnerabilities
 .PHONY: vulncheck
 vulncheck:
-	go run golang.org/x/vuln/cmd/govulncheck@$(VULNCHECK_VERSION) ./...
+	go tool golang.org/x/vuln/cmd/govulncheck ./...
 
 ## Display help for all targets
 .PHONY: help
