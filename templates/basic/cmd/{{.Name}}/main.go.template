@@ -5,9 +5,17 @@
 package main
 
 import (
+	"context"
+	"net/http"
 	"os"
+	"os/signal"
+	"time"
 
+	"github.com/birdie-ai/golibs/service"
 	"github.com/birdie-ai/golibs/slog"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -17,7 +25,62 @@ func main() {
 	err = slog.Configure(logcfg)
 	abortonerr(err)
 
+	metricsRegistry := setupMetrics()
+	service.SampleBuildInfo()
+
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancel()
+
 	slog.Info("TODO: implement {{.Name}}")
+
+	const gracefulShutdownPeriod = 30 * time.Second
+	shutdownHandler := service.NewShutdownHandler(gracefulShutdownPeriod)
+
+	shutdownHandler.Add(runMetricsServer(cancel, metricsRegistry))
+
+	err = shutdownHandler.Wait(ctx)
+	slog.Info("exiting service", "error", err)
+}
+
+func setupMetrics() *prometheus.Registry {
+	r := prometheus.NewRegistry()
+	service.MustRegisterMetrics(r)
+	// TODO: Remove or uncomment if this is an HTTP service
+	// service.MustRegisterHTTPMetrics(r)
+	// TODO: Remove or uncomment if event handling is done using the event package
+	// event.MustRegisterMetrics(r)
+	r.MustRegister(collectors.NewGoCollector())
+	r.MustRegister(collectors.NewBuildInfoCollector())
+	r.MustRegister(collectors.NewProcessCollector(collectors.ProcessCollectorOpts{
+		ReportErrors: true,
+	}))
+	return r
+
+}
+
+func runMetricsServer(cancel context.CancelFunc, r *prometheus.Registry) *http.Server {
+	serverAddr := getenv("{{.ConfigPrefix}}_METRICS_HTTP_ADDR", ":9200")
+	server := &http.Server{
+		Addr:              serverAddr,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		Handler:           promhttp.HandlerFor(r, promhttp.HandlerOpts{}),
+	}
+	go func() {
+		slog.Info("starting server")
+		err := server.ListenAndServe()
+		slog.Info("server stopped", "error", err)
+		cancel()
+	}()
+	return server
+}
+
+func getenv(name, def string) string {
+	if v := os.Getenv(name); v != "" {
+		return v
+	}
+	return def
 }
 
 func abortonerr(err error) {

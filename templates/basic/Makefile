@@ -1,4 +1,4 @@
-SHELL = /bin/bash
+SHELL = /usr/bin/env bash
 
 # TOOLS VERSIONS
 ALPINE_VERSION=3.20
