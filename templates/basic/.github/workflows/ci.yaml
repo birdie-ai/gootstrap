@@ -3,27 +3,6 @@ name: CI
 on: [push]
 
 jobs:
-  lint:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version-file: go.mod
-
-      - name: Lint Go Code
-        uses: golangci/golangci-lint-action@v8
-        with:
-          version: v2.1
-          install-mode: binary
-          args: --timeout=5m
-
-      - name: Lint Go Modules
-        run: make lint/mod
-
   test:
     runs-on: ubuntu-22.04
     steps:
@@ -34,6 +13,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+
+      - name: Lint Go Modules
+        run: make lint/mod
 
       - name: Testing
         run: make test
