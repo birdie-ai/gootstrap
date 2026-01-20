@@ -9,7 +9,7 @@ base_image=us-central1-docker.pkg.dev/birdie-org/birdie/{{.Group}}/{{.Name}}
 image=$(base_image):$(version)
 covreport ?= coverage.txt
 
-all: lint test image
+all: lint/mod test image
 
 
 ## Format go code
